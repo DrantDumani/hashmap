@@ -81,6 +81,7 @@ function hashMap() {
   };
 
   const clear = () => {
+    numOfPairs = 0;
     for (let i = 0; i < buckets.length; i++) {
       buckets[i] = null;
     }
@@ -120,6 +121,7 @@ function hashMap() {
     tableSize *= 2;
     const pairs = entries();
     buckets = new Array(tableSize).fill(null);
+    numOfPairs = 0;
 
     pairs.forEach((pair) => {
       set(pair[0], pair[1]);
@@ -128,3 +130,46 @@ function hashMap() {
 
   return { set, get, has, remove, length, clear, keys, values, entries };
 }
+
+//test
+const touhou = hashMap();
+touhou.set("maiden", "Reimu");
+touhou.set("plants", "Yuuka");
+touhou.set("witch", "Marisa");
+touhou.set("ghost", "Mima");
+
+console.log(touhou.values());
+
+console.log(touhou.remove("puppeteer"));
+console.log(touhou.remove("ghost"));
+
+console.log(touhou.values());
+console.log(touhou.keys());
+console.log(touhou.entries());
+
+touhou.set("puppeteer", "Alice");
+touhou.set("vampire", "Remilia");
+touhou.set("ghost", "Yuyuko");
+touhou.set("judge", "Shikeiki");
+
+touhou.set("greenMaiden", "Sanae");
+
+touhou.set("bird", "Okuu");
+touhou.set("alien", "Nue");
+touhou.set("administrator", "Miko");
+touhou.set("little", "Sukuna");
+touhou.set("moon", "Junko");
+touhou.set("secret", "Okina");
+touhou.set("crafter", "Keiki");
+touhou.set("market", "Chimata");
+touhou.set("princess", "Kaguya");
+console.log(touhou.length());
+
+console.log(touhou.values());
+console.log(touhou.keys());
+console.log(touhou.has("greenMaiden"));
+console.log(touhou.has("rabbit"));
+console.log(touhou.entries());
+
+touhou.clear();
+console.log(touhou.entries());
