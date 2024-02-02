@@ -1,8 +1,8 @@
 function hashMap() {
   let tableSize = 16;
-  let capacity = 0;
+  let numOfPairs = 0;
   const loadFactor = 0.75;
-  const buckets = new Array(tableSize);
+  let buckets = new Array(tableSize).fill(null);
 
   const hash = (key) => {
     let hCode = 0;
@@ -24,67 +24,105 @@ function hashMap() {
 
   const set = (key, val) => {
     const index = findIndex(key);
+    const node = { value: [key, val], next: null };
+    let location = buckets[index];
 
-    buckets[index] = [key, val];
-    capacity += 1;
+    while (location) {
+      if (location.value[0] === key) {
+        location.value[1] = val;
+        return;
+      } else if (location.next) location = location.next;
+      else break;
+    }
 
-    if (capacity / tableSize >= loadFactor) resize();
+    location ? (location.next = node) : (buckets[index] = node);
+    numOfPairs += 1;
+    if (numOfPairs / tableSize >= loadFactor) resize();
   };
 
   const get = (key) => {
     const index = findIndex(key);
-    return buckets[index]?.[0] === key ? buckets[index][1] : null;
+    let result = buckets[index];
+    while (result) {
+      if (result.value[0] === key) return result.value[1];
+      else result = result.next;
+    }
+    return result;
   };
 
   const has = (key) => {
     const index = findIndex(key);
-    return buckets[index]?.[0] === key ? true : false;
+    let result = buckets[index];
+    while (result) {
+      if (result.value[0] === key) return true;
+      else result = result.next;
+    }
+    return false;
   };
 
   const remove = (key) => {
     const index = findIndex(key);
-    if (buckets[index]?.[0] === key) {
-      buckets[index] = undefined;
-      capacity -= 1;
-      return true;
-    } else {
-      return false;
+    let result = buckets[index];
+    let prev = null;
+    while (result) {
+      if (result.value[0] === key) {
+        prev ? (prev.next = result.next) : (buckets[index] = result.next);
+        numOfPairs -= 1;
+        break;
+      }
+      prev = result;
+      result = result.next;
     }
+    return result?.value[0] === key;
   };
 
   const length = () => {
-    return buckets.reduce((acc, el) => (el ? acc + 1 : acc + 0), 0);
+    return numOfPairs;
   };
 
   const clear = () => {
     for (let i = 0; i < buckets.length; i++) {
-      buckets[i] = undefined;
+      buckets[i] = null;
     }
   };
 
   const keys = () => {
-    return buckets.reduce((acc, el) => (el ? acc.concat(el[0]) : acc), []);
+    return buckets.reduce((acc, el) => {
+      while (el) {
+        acc.push(el.value[0]);
+        el = el.next;
+      }
+      return acc;
+    }, []);
   };
 
   const values = () => {
-    return buckets.reduce((acc, el) => (el ? acc.concat(el[1]) : acc), []);
+    return buckets.reduce((acc, el) => {
+      while (el) {
+        acc.push(el.value[1]);
+        el = el.next;
+      }
+      return acc;
+    }, []);
   };
 
   const entries = () => {
     return buckets.reduce((acc, el) => {
-      if (el) acc.push(el);
+      while (el) {
+        acc.push(el.value);
+        el = el.next;
+      }
       return acc;
     }, []);
   };
 
   const resize = () => {
     tableSize *= 2;
-    buckets.length = tableSize;
-    const entries = entries();
-    clear();
+    const pairs = entries();
+    buckets = new Array(tableSize).fill(null);
 
-    entries.forEach((pair) => {
-      set(pair[0], [pair[1]]);
+    pairs.forEach((pair) => {
+      set(pair[0], pair[1]);
     });
   };
 
